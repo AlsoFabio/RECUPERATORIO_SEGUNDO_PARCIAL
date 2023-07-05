@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - 27017:27017
+    volumes:
+      - ./bd/mongo:/data/db
+
+  mysql:
+    image: mysql:8.0.33
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+    ports:
+      - 3309:3306
+    volumes:
+      - ./bd/mysql:/var/lib/mysql
+
+  mariadb:
+    image: mariadb:10.6.14
+    environment:
+      - MARIADB_USER=$MARIADB_USER
+      - MARIADB_PASSWORD=$MARIADB_PASSWORD
+      - MARIADB_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD
+    ports:
+      - 3307:3306
+    volumes:
+      - ./bd/maria:/var/lib/mysql
+
+  my_express:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 3000:5000
+    environment:
+      - MONGODB_HOST=mongodb
+
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=$MYSQL_ROOT_PASSWORD
+
+      - MARIADB_HOST=mariadb
+      - MARIADB_USER=$MARIADB_USER
+      - MARIADB_PASSWORD=$MARIADB_PASSWORD
+    volumes:
+      - ./server:/servidor
+      - /servidor/node_modules
